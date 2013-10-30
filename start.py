@@ -21,6 +21,12 @@ except ImportError, e:
 	sys.stderr.write("You are missing requests; `pip install requests`\n")
 	errors = True
 
+try:
+	import lxml.html
+except ImportError, e:
+	sys.stderr.write("You are missing lxml (needs 2.0 or higher); `pip install lxml`\n")
+	errors = True
+
 if errors == False:
 	subprocess.call(["/bin/sh", "_start.sh"])
 	
