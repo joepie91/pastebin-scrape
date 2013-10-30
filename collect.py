@@ -2,7 +2,7 @@ import zmq, msgpack, json, os, time
 
 context = zmq.Context()
 socket = context.socket(zmq.PULL)
-socket.connect("ipc:///tmp/pbscrape-results")
+socket.bind("ipc:///tmp/pbscrape-results")
 
 try:
 	os.makedirs("pastes")

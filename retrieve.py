@@ -4,7 +4,7 @@ context = zmq.Context()
 receiver = context.socket(zmq.PULL)
 receiver.connect("ipc:///tmp/pbscrape-tasks")
 sender = context.socket(zmq.PUSH)
-sender.bind("ipc:///tmp/pbscrape-results")
+sender.connect("ipc:///tmp/pbscrape-results")
 
 while True:
 	item = msgpack.unpackb(receiver.recv())
