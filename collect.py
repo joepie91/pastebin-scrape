@@ -3,6 +3,8 @@ import zmq, msgpack, json, os, time
 context = zmq.Context()
 socket = context.socket(zmq.PULL)
 socket.bind("ipc:///tmp/pbscrape-results")
+logger = context.socket(zmq.PUSH)
+logger.connect("ipc:///tmp/pbscrape-log")
 
 try:
 	os.makedirs("pastes")
@@ -28,3 +30,5 @@ while True:
 	f = open("pastes/%s/%s.json" % (target_dir, item["id"]), "wb")
 	json.dump(item, f)
 	f.close()
+	
+	logger.send(msgpack.packb({"component": "collect", "timestamp": int(time.time()), "message": "Stored %s." % item["id"]}))

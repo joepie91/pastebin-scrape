@@ -3,6 +3,8 @@ import zmq, time, requests, lxml.html, msgpack
 context = zmq.Context()
 socket = context.socket(zmq.PUSH)
 socket.bind("ipc:///tmp/pbscrape-tasks")
+logger = context.socket(zmq.PUSH)
+logger.connect("ipc:///tmp/pbscrape-log")
 
 last_list = []
 
@@ -20,6 +22,7 @@ while True:
 	
 	pastes = xml.xpath("//table[@class='maintable']/tr")
 	new_list = []
+	found = 0
 	
 	for paste in pastes:
 		try:
@@ -33,7 +36,10 @@ while True:
 		new_list.append(paste_id)
 		
 		if paste_id not in last_list:
+			found += 1
 			socket.send(msgpack.packb({"id": paste_id, "type": filetype, "title": title, "base_time": basetime, "ago": ago}))
+	
+	logger.send(msgpack.packb({"component": "scrape", "timestamp": int(time.time()), "message": "Scraped metadata for %d new pastes." % found}))
 	
 	last_list = new_list
 	
