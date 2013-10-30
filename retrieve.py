@@ -22,6 +22,5 @@ while True:
 	item["retrieval_time"] = int(time.time())
 	item["paste"] = paste
 	sender.send(msgpack.packb(item))
-	print item
 	
 	time.sleep(1) # Wait a second between each paste retrieval...
