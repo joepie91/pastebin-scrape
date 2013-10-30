@@ -43,4 +43,4 @@ while True:
 	
 	last_list = new_list
 	
-	time.sleep(5 * 60)
+	time.sleep(1 * 60)
