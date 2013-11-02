@@ -13,12 +13,19 @@ while True:
 	
 	while True: # We want to keep trying until it succeeds...
 		try:
-			paste = requests.get("http://pastebin.com/raw.php?i=%s" % item["id"]).text
+			response = requests.get("http://pastebin.com/raw.php?i=%s" % item["id"])
+			paste = response.text
 		except Exception, e:
 			# TODO: Log error
 			print e
 			time.sleep(5)
 			continue # Retry
+		
+		if response.status_code == 403:
+			logger.send(msgpack.packb({"component": "retrieve", "timestamp": int(time.time()), "message": "Got throttled, sleeping..."}))
+			time.sleep(600)
+			continue # Retry
+			
 		break # Done
 		
 	item["retrieval_time"] = int(time.time())

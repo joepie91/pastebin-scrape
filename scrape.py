@@ -16,6 +16,11 @@ while True:
 		time.sleep(30)
 		continue
 		
+	if "temporarily blocked your computer" in page:
+		logger.send(msgpack.packb({"component": "scrape", "timestamp": int(time.time()), "message": "Got throttled, sleeping..."}))
+		time.sleep(600)
+		continue
+		
 	basetime = int(time.time())
 		
 	xml = lxml.html.fromstring(page)
