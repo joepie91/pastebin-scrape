@@ -14,6 +14,11 @@ while True:
 	while True: # We want to keep trying until it succeeds...
 		try:
 			response = requests.get("http://pastebin.com/raw.php?i=%s" % item["id"])
+			if "text/html" in response.headers["Content-Type"]:
+				# We most likely got an "under heavy load" message or similar; sleep a while and retry
+				logger.send(msgpack.packb({"component": "retrieve", "timestamp": int(time.time()), "message": "Hit a text/html response for raw.php, servers most likely overloaded, sleeping..."}))
+				time.sleep(10)
+				continue # Retry
 			paste = response.text
 		except Exception, e:
 			# TODO: Log error
