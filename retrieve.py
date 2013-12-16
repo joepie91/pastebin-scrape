@@ -11,10 +11,16 @@ logger.connect("ipc:///tmp/pbscrape-log")
 while True:
 	item = msgpack.unpackb(receiver.recv())
 	
+	gone = False
+	
 	while True: # We want to keep trying until it succeeds...
 		try:
 			response = requests.get("http://pastebin.com/raw.php?i=%s" % item["id"])
-			if "text/html" in response.headers["Content-Type"]:
+			if response.status_code == 404:
+				# Gone...
+				gone = True
+				break
+			elif "text/html" in response.headers["Content-Type"]:
 				# We most likely got an "under heavy load" message or similar; sleep a while and retry
 				logger.send(msgpack.packb({"component": "retrieve", "timestamp": int(time.time()), "message": "Hit a text/html response for raw.php, servers most likely overloaded, sleeping..."}))
 				time.sleep(10)
@@ -33,6 +39,9 @@ while True:
 			
 		break # Done
 		
+	if gone:
+		logger.send(msgpack.packb({"component": "retrieve", "timestamp": int(time.time()), "message": "Paste %s gone, skipping..." % item["id"]}))
+		continue # Next!
 	item["retrieval_time"] = int(time.time())
 	item["paste"] = paste
 	
